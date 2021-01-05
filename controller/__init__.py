@@ -1,1 +1,1 @@
-from .company_list import CompanyList
+from .database_controller import DatabaseController

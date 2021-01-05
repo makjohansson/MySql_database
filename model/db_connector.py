@@ -16,7 +16,7 @@ class MysqlDB():
         try:
             stmt = self.__conn.cursor()
             stmt.execute(f"USE {self.__database_name}")
-            print(f"Using {self.__database_name}")
+            print(f"Using database {self.__database_name}")
 
         except Error as e:
             print(e)
@@ -33,16 +33,13 @@ class MysqlDB():
         except Error as e:
             print(e)
 
-    def get_companies(self):
+    def execute_query(self, query):
         stmt = self.__conn.cursor()
-
-        get_company = "Select * from company"
-        stmt.execute(get_company)
-
-        comp = stmt.fetchall()
-        return comp
+        stmt.execute(query)
+        db_return = stmt.fetchall()
+        return db_return
 
     def disconnect(self):
         if self.__conn is not None and self.__conn.is_connected:
             self.__conn.close()
-            print("Connection is closed.")
+            print(f"Connection to database {self.__database_name} is closed.")
