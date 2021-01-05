@@ -11,7 +11,7 @@ class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, data):
         super(TableModel, self).__init__()
         self.data = data
-        self.header_labels = ["One", "Two", "Three"]
+        self.header_labels = ["Name", "Category", "Contact", "Phone number", "Mail", "Joined", "Employee"]
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
@@ -64,7 +64,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Guldhäftet")
         self.setGeometry(300, 200, 800, 500)
 
-        self.titles = ['Company', 'Association', 'inProgress', 'Employess']
+        self.titles = ['Company', 'Association', 'Stats', 'Employess']
         main_layout = QHBoxLayout()
         btn_layout = QVBoxLayout()
 
@@ -159,11 +159,11 @@ class MainWindow(QMainWindow):
     
     def setup_table(self):
         data = [
-          [4, 9, 2],
-          [1, 0, 0],
-          [3, 5, 0],
-          [3, 3, 2],
-          [7, 8, 9],
+          [4, 9, 2, 5, 6, 1, 7],
+          [1, 0, 0, 5, 6, 1, 7],
+          [3, 5, 0, 5, 6, 0, 7],
+          [3, 3, 2, 5, 6, 1, 7],
+          [7, 8, 9, 5, 6, 0, 7],
         ]
         table = QTableView()
         self.model = TableModel(data)
@@ -186,12 +186,13 @@ class MainWindow(QMainWindow):
         dlg.exec_()
     
     def print_model(self, row):
+        s = ""
         for col in range(self.model.columnCount(row)):
             index = self.model.index(row, col)
-            
+            s += str(index.data()) + ", "
             print(index.data(), end=', ')
         print()
-        #h = self.model.data(index)
+        return s
         
 
 
