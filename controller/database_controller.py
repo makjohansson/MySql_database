@@ -23,11 +23,15 @@ class DatabaseController():
         emp = self.db.execute_query(query)
         return emp
     
-
     def employees_company_count(self, id):
         query = f"select count(employee_id) from company where employee_id = {id}"
         count = self.db.execute_query(query)
         return count[0][0]
+    
+    def company_tabel(self, id):
+        query = f"select * from company where id = {id}"
+        comp_tabel = self.db.execute_query(query)
+        return comp_tabel
 
     def disconnect(self):
         self.db.disconnect()

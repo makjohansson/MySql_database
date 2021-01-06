@@ -1,12 +1,13 @@
 from view.tablemodel import TableModel
-from model import db_connector
-from PyQt5.QtWidgets import QDialog, QGridLayout, QMainWindow, QPushButton, QStackedWidget, QTableView
+from view.employee_view import EmployeeGrid
+from PyQt5.QtWidgets import QDialog, QMainWindow, QPushButton, QStackedWidget, QTableView
 from PyQt5.QtGui import QColor, QPalette, QPixmap
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from PyQt5.QtCore import Qt
 from PyQt5 import QtCore
 from controller import DatabaseController
-
+from view.company_form_view import CompanyForm
+        
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -95,7 +96,7 @@ class MainWindow(QMainWindow):
     def stack_oneUI(self):
         container = QVBoxLayout()
         header_labels = ["Name", "Category", "Contact",
-                         "Phone number", "Mail", "Joined", "Employee", "Id"]
+                         "Phone number", "Mail", "Joined", "Employee", "id"]
         data = self.db_controller.fill_company_table()
         table = self.setup_table(data, header_labels)
         container.addWidget(self.tab_label(self.titles[0]))
@@ -105,7 +106,7 @@ class MainWindow(QMainWindow):
     def stack_twoUI(self):
         container = QVBoxLayout()
         header_labels = ["Name", "Category", "Contact",
-                         "Phone number", "Mail", "Joined", "Employee", "Id"]
+                         "Phone number", "Mail", "Joined", "Employee", "id"]
         data = self.db_controller.fill_association_table()
         data = [data]
         table = self.setup_table(data, header_labels)
@@ -116,75 +117,17 @@ class MainWindow(QMainWindow):
     def stack_threeUI(self):
         container = QVBoxLayout()
         header_labels = ["Name", "Category", "Contact",
-                         "Phone number", "Mail", "Joined", "Employee", "Id"]
+                         "Phone number", "Mail", "Joined", "Employee", "id"]
         data = self.db_controller.fill_company_table()
         table = self.setup_table(data, header_labels)
         container.addWidget(self.tab_label(self.titles[2]))
         container.addWidget(table)
         self.stack_three.setLayout(container)
-
-    def employee_grid(self):
-        grid = QVBoxLayout()
-        row_one = QHBoxLayout()
-        row_two = QHBoxLayout()
-        
-        QLabels = self.fill_grid()
-        pixmap = QPixmap('view/img/avatar.png')
-        pixmap_girl = QPixmap('view/img/avatar_girl.png')
-
-        label = QLabel()
-        label.setPixmap(pixmap)
-        label.setMaximumSize(pixmap.width(), pixmap.height())
-        row_one.addWidget(label)
-        row_one.addWidget(QLabels[0])
-
-        label = QLabel()
-        label.setPixmap(pixmap_girl)
-        label.setMaximumSize(pixmap_girl.width(), pixmap_girl.height())
-        row_one.addWidget(label)
-        row_one.addWidget(QLabels[1])
-        
-        label = QLabel()
-        label.setPixmap(pixmap_girl)
-        label.setMaximumSize(pixmap_girl.width(), pixmap_girl.height())
-        row_two.addWidget(label)
-        row_two.addWidget(QLabels[2])
-
-        label = QLabel()
-        label.setPixmap(pixmap_girl)
-        label.setMaximumSize(pixmap_girl.width(), pixmap_girl.height())
-        row_two.addWidget(label)
-        row_two.addWidget(QLabels[3])
-        
-        grid.addLayout(row_one)
-        grid.addLayout(row_two)
-        widget = QWidget()
-        widget.setLayout(grid)
-        return widget
-    
-    def fill_grid(self):
-        QLabels = []
-        emp_info = ""
-        data = self.db_controller.employee_info()
-    
-        for row in range(len(data)):
-            count = self.db_controller.employees_company_count(data[row][0])
-            role = "Manager" if data[row][2] == None else "Sales" 
-            emp_info = f"Name: {data[row][1]}\nRole: {role}\nApp-code's sold: {data[row][3]}\nCompanies: {count}"
-            label = QLabel(emp_info)
-            label.setStyleSheet("""
-                color: rgb(54, 54, 54);
-                font-family: Arial, Helvetica, sans-serif;
-                font-size: 15px;
-            """)
-            QLabels.append(label)
-        return QLabels
             
     def stack_fourUI(self):
         container = QVBoxLayout()
         container.addWidget(self.tab_label(self.titles[3]))
-
-        container.addWidget(self.employee_grid())
+        container.addWidget(EmployeeGrid(self.db_controller).employee_grid())
         self.stack_four.setLayout(container)
 
     def setup_table(self, data, header_labels):
@@ -194,22 +137,28 @@ class MainWindow(QMainWindow):
         # table.resizeColumnsToContents()
         #table.setMaximumSize(720, 300)
         table.setShowGrid(False)
-        table.clicked.connect(self.first_test)
+        table.clicked.connect(self.open_company_form)
         table.setStyleSheet(
             "QTableView::item {border-bottom: 1px solid #d6d9dc;} QTableView {background: #2b2f3b; color: #f5f5f5; }")
 
         return table
 
-    def first_test(self, i):
-        cell = i.data()
-        dlg = QDialog(self)
-        s = f"Row {i.row()}, Col {i.column()}"
-        dlg.setWindowTitle(s)
-        label = QLabel(dlg)
-        label.setText(self.print_model(i.row()))
-        label.move(80, 100)
+    def open_company_form(self, i):
+        id = self.model.index(i.row(), 7).data()
+        data = self.db_controller.company_tabel(id)
+        self.w = CompanyForm(data)
+        self.w.show()
+        # cell = i.data()
+        # print(cell)
+        # dlg = QDialog(self)
+        # s = f"Row {self.model.index(i.row(), 7).data()}"
+        # dlg.setWindowTitle(s)
+        # dlg.move(10,50)
+        # label = QLabel(dlg)
+        # label.setText(self.print_model(i.row()))
+        # label.move(80, 100)
 
-        dlg.exec_()
+        # dlg.exec_()
 
     def print_model(self, row):
         s = ""
