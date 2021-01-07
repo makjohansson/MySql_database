@@ -32,6 +32,11 @@ class DatabaseController():
         query = f"select * from company where id = {id}"
         comp_tabel = self.db.execute_query(query)
         return comp_tabel
+    
+    def company_offers(self, id):
+        query = f"select offer from offer where company_id = {id}"
+        company_offers = self.db.execute_query(query)
+        return company_offers
 
     def disconnect(self):
         self.db.disconnect()

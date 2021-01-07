@@ -1,8 +1,10 @@
 from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QCheckBox, QFormLayout, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QRadioButton, QTextEdit, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QCheckBox, QDialogButtonBox, QFormLayout, QGridLayout, QHBoxLayout, QInputDialog, QLabel, QLineEdit, QListView, QListWidget, QListWidgetItem, QMessageBox, QPushButton, QRadioButton, QTextEdit, QVBoxLayout, QWidget
 from view.gui import QMainWindow
 
-
+'''
+Help class to make the QLabel date clickable
+'''
 class DateLabel(QLabel):
     clicked = QtCore.pyqtSignal()
 
@@ -12,13 +14,19 @@ class DateLabel(QLabel):
 
 
 class CompanyForm(QWidget):
-    def __init__(self, data):
+    def __init__(self, company_id, db_controller):
         super().__init__()
-        self.data = data
         self.setWindowModality(QtCore.Qt.ApplicationModal)
         self.setGeometry(500, 300, 800, 300)
+        
+        self.company_id = company_id
+        self.db_controller = db_controller
+        self.data = self.db_controller.company_tabel(company_id)
+        self.db_controller = db_controller
+        
         window_title = self.data[0][2]
         self.setWindowTitle(window_title)
+        
 
         # self.setStyleSheet("QLabel{background-color: yel;}")
 
@@ -41,14 +49,14 @@ class CompanyForm(QWidget):
         company_name = QLabel("Company")
         company_edit = QLineEdit()
         company_edit.setMinimumWidth(270)
-        company_edit.setText(data[0][2])
+        company_edit.setText(self.data[0][2])
         company_edit.textChanged.connect(self.company_text)
         left_form.addRow(company_name, company_edit)
 
         # Date joined
         date_label = QLabel("Joined: ")
         date = DateLabel()
-        date_joined = data[0][8] if data[0][8] is not None else "Click to set date"
+        date_joined = self.data[0][8] if self.data[0][8] is not None else "Click to set date"
         date.setText(date_joined)
         date.clicked.connect(self.change_date)
         left_form.addRow(date_label, date)
@@ -72,7 +80,7 @@ class CompanyForm(QWidget):
 
         # Association radio checkBox
         ass_check = QCheckBox("Association")
-        is_ass = True if data[0][11] == 1 else False
+        is_ass = True if self.data[0][11] == 1 else False
         ass_check.setChecked(is_ass)
         left_form.addWidget(ass_check)
 
@@ -84,12 +92,32 @@ class CompanyForm(QWidget):
         joined_btn.addWidget(joined_yes)
         joined_btn.addWidget(joined_no)
         left_form.addRow(QLabel("Joined"), joined_btn)
-
-        # Offers btn
-        self.offers = QPushButton("Offers")
-        self.offers.pressed.connect(self.clicked_offers)
-        left_form.addWidget(self.offers)
         left_side.addLayout(left_form)
+
+        # ListView for the offers
+        offers_label = QLabel("Offers:")
+        left_side.addWidget(offers_label)
+        self.offer_list = QListWidget()
+        self.offer_list.itemClicked.connect(self.list_clicked)
+        self.offer_list.setMaximumHeight(70)
+        offers = self.db_controller.company_offers(self.company_id)
+        if offers is not None:
+            for offer in offers:
+                self.offer_list.addItem(offer[0])
+        left_side.addWidget(self.offer_list)
+
+        # Add offer btn and show app info btn
+        offers_appInfo_btns = QHBoxLayout()
+        self.offers = QPushButton("Add offer")
+        self.offers.setMaximumWidth(100)
+        self.offers.pressed.connect(self.clicked_offers)
+        self.app_info = QPushButton("App information")
+        self.app_info.setMaximumWidth(120)
+        self.app_info.pressed.connect(self.clicked_app_info)
+        offers_appInfo_btns.addWidget(self.offers)
+        offers_appInfo_btns.addWidget(self.app_info)
+        left_side.addLayout(offers_appInfo_btns)
+        
         main_layout.addLayout(left_side)
 
         '''
@@ -128,16 +156,19 @@ class CompanyForm(QWidget):
         notes_edit = QTextEdit()
         notes_edit.setText(self.data[0][9])
         right_form.addRow(QLabel("Notes"), notes_edit)
-        right_side.addLayout(right_form)
+        #right_side.addLayout(right_form)
         
 
         end_button = QHBoxLayout()
         cancel = QPushButton("Cancel")
+        cancel.setMinimumWidth(130)
         cancel.clicked.connect(self.quit)
         submit = QPushButton("Submit")
+        submit.setMinimumWidth(130)
         end_button.addWidget(cancel)
         end_button.addWidget(submit)
-        right_side.addLayout(end_button)
+        right_form.addRow(QLabel(""), end_button)
+        right_side.addLayout(right_form)
         main_layout.addLayout(right_side)
         
         
@@ -147,15 +178,28 @@ class CompanyForm(QWidget):
         Right-side form end
         '''
 
-        #widget = QWidget()
         self.setLayout(main_layout)
-        # self.setCentralWidget(widget)
+       
+    
+    def list_clicked(self, i):
+        response, save = QInputDialog().getText(self, "Change/Remove", "offer", QLineEdit.Normal, i.text())
+        if save:
+            i.setText(response)
+        else:
+            check = QMessageBox.question(self, "Remove", f"Remove this offer?\n\n{i.text()}")
+            if check == QMessageBox.Yes:
+                i.setHidden(True)
 
     def clicked_sales(self):
         print("Clicked on sales stats")
 
     def clicked_offers(self):
-        print("Clicked on offers")
+        offer, ok = QInputDialog.getText(self,"Add offer", "Enter offer")
+        if ok:
+            self.offer_list.addItem(offer)
+    
+    def clicked_app_info(self):
+        pass
 
     def change_date(self):
         print("clicked")
@@ -178,6 +222,6 @@ class CompanyForm(QWidget):
 
     def hide_sales_state_btn(self):
         self.sales_stats.hide()
-    
+
     def quit(self):
         self.close()

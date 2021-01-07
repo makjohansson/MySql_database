@@ -145,20 +145,8 @@ class MainWindow(QMainWindow):
 
     def open_company_form(self, i):
         id = self.model.index(i.row(), 7).data()
-        data = self.db_controller.company_tabel(id)
-        self.w = CompanyForm(data)
+        self.w = CompanyForm(id, self.db_controller)
         self.w.show()
-        # cell = i.data()
-        # print(cell)
-        # dlg = QDialog(self)
-        # s = f"Row {self.model.index(i.row(), 7).data()}"
-        # dlg.setWindowTitle(s)
-        # dlg.move(10,50)
-        # label = QLabel(dlg)
-        # label.setText(self.print_model(i.row()))
-        # label.move(80, 100)
-
-        # dlg.exec_()
 
     def print_model(self, row):
         s = ""
