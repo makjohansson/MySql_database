@@ -1,3 +1,4 @@
+from view.offers_handler_view import OffersHandler
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QCheckBox, QDialogButtonBox, QFormLayout, QGridLayout, QHBoxLayout, QInputDialog, QLabel, QLineEdit, QListView, QListWidget, QListWidgetItem, QMessageBox, QPushButton, QRadioButton, QTextEdit, QVBoxLayout, QWidget
 from view.gui import QMainWindow
@@ -181,14 +182,9 @@ class CompanyForm(QWidget):
         self.setLayout(main_layout)
        
     
-    def list_clicked(self, i):
-        response, save = QInputDialog().getText(self, "Change/Remove", "offer", QLineEdit.Normal, i.text())
-        if save:
-            i.setText(response)
-        else:
-            check = QMessageBox.question(self, "Remove", f"Remove this offer?\n\n{i.text()}")
-            if check == QMessageBox.Yes:
-                i.setHidden(True)
+    def list_clicked(self, offer):  
+        self.w = OffersHandler(offer)
+        self.w.show() 
 
     def clicked_sales(self):
         print("Clicked on sales stats")
