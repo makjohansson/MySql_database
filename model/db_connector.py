@@ -33,12 +33,18 @@ class MysqlDB():
         except Error as e:
             print(e)
 
-    def execute_query(self, query):
+    def execute_select_query(self, query):
         stmt = self.__conn.cursor()
         stmt.execute(query)
         db_return = stmt.fetchall()
         return db_return
-
+    
+    def execute_update_query(self, query):
+        stmt = self.__conn.cursor()
+        stmt.execute(query)
+        self.__conn.commit()
+        print("Database updated")
+        
     def disconnect(self):
         if self.__conn is not None and self.__conn.is_connected:
             self.__conn.close()

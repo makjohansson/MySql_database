@@ -1,4 +1,5 @@
-from view.offers_handler_view import OffersHandler
+from view.resources.offers_handler_view import OffersHandler
+from view.resources.app_info_view import AppInfo
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtWidgets import QCheckBox, QDialogButtonBox, QFormLayout, QGridLayout, QHBoxLayout, QInputDialog, QLabel, QLineEdit, QListView, QListWidget, QListWidgetItem, QMessageBox, QPushButton, QRadioButton, QTextEdit, QVBoxLayout, QWidget
 from view.gui import QMainWindow
@@ -195,7 +196,8 @@ class CompanyForm(QWidget):
             self.offer_list.addItem(offer)
     
     def clicked_app_info(self):
-        pass
+        self.w = AppInfo(self.db_controller, self.company_id)
+        self.w.show()
 
     def change_date(self):
         print("clicked")

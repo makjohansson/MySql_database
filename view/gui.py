@@ -1,12 +1,12 @@
-from view.tablemodel import TableModel
-from view.employee_view import EmployeeGrid
+from view.resources.tablemodel import TableModel
+from view.resources.employee_view import EmployeeGrid
 from PyQt5.QtWidgets import QDialog, QMainWindow, QPushButton, QStackedWidget, QTableView
 from PyQt5.QtGui import QColor, QPalette, QPixmap
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel
 from PyQt5.QtCore import Qt
 from PyQt5 import QtCore
 from controller import DatabaseController
-from view.company_form_view import CompanyForm
+from view.resources.company_form_view import CompanyForm
         
 
 class MainWindow(QMainWindow):
