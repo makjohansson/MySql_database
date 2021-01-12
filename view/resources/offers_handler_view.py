@@ -2,13 +2,16 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QVBoxLayout, QWidget
 
 class OffersHandler(QWidget):
-    def __init__(self, offer):
+    def __init__(self, offer, city, offer_id, db_controller):
         super().__init__()
         self.setWindowModality(QtCore.Qt.ApplicationModal)
         self.setGeometry(600, 330, 500, 150)
         self.setWindowTitle("Change/Remove")
 
+        self.db_controller = db_controller
         self.offer = offer
+        self.city = city
+        self.offer_id = offer_id
         self.setup_gui()
 
         
@@ -40,12 +43,14 @@ class OffersHandler(QWidget):
     
     def submit(self):
         self.offer.setText(self.edit_offer.text())
+        self.db_controller.update_offer(self.edit_offer.text(), self.offer_id)
         self.close()
     
     def delete(self):
         check = QMessageBox.question(self, "Remove", f"Remove this offer?\n\n{self.offer.text()}")
         if check == QMessageBox.Yes:
             self.offer.setHidden(True)
+            self.db_controller.delete_offer(self.offer_id)
             self.close()
         
     def cancel(self):

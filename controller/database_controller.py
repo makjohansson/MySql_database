@@ -39,9 +39,14 @@ class DatabaseController():
         return name
 
     def company_offers(self, id):
-        query = f"select offer from offer where company_id = {id}"
+        query = f"select id, offer from offer where company_id = {id}"
         company_offers = self.db.execute_select_query(query)
         return company_offers
+
+    def company_city(self, id):
+        query = f"select city from offer where company_id = {id}"
+        city = self.db.execute_select_query(query)
+        return city
 
     def app_info(self, id):
         query = (f"select phone_number, address, mail from offer_info where " 
@@ -55,11 +60,26 @@ class DatabaseController():
         all_app_info =self.db.execute_select_query(query)
         return all_app_info
     
+    def add_offer(self, company_id, offer, city):
+        query = f"insert into offer (company_id, offer, city) values ({company_id}, '{offer}', '{city}')"
+        self.db.execute_update_query(query)
+    
     def update_app_info(self, phone, address, mail, web, terms, open, desc, id):
         query = (f"update offer_info set phone_number = '{phone}', address = '{address}', mail = '{mail}', web = '{web}', "
                 f"terms = '{terms}', opening_hours = '{open}', description = '{desc}' where id = {id}")
         self.db.execute_update_query(query)
-        
+    
+    def update_company_table(self, name, phone, contact, address, mail, date, notes, sells, asso, joined, id):
+        query = (f"Update company set name = '{name}', phone_number = '{phone}', contact = '{contact}', address = '{address}', "
+                f"mail = '{mail}', joined_date = {date}, notes = '{notes}', sells = '{sells}', association = '{asso}', joined = '{joined}' where id = {id}")
+        self.db.execute_update_query(query)
+    def update_offer(self, offer, id):
+        query = f"Update offer set offer = '{offer}' where id = {id}"
+        self.db.execute_update_query(query)
+    
+    def delete_offer(self, id):
+        query =f"delete from offer where id = '{id}'"
+        self.db.execute_update_query(query)
 
     def disconnect(self):
         self.db.disconnect()

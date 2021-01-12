@@ -24,6 +24,9 @@ class CompanyForm(QWidget):
         self.company_id = company_id
         self.db_controller = db_controller
         self.data = self.db_controller.company_tabel(company_id)
+        self.city = self.db_controller.company_city(company_id)
+        self.city = self.city[0][0] if self.city is not None else None 
+        self.setup_dict()
         self.db_controller = db_controller
         
         window_title = self.data[0][2]
@@ -51,17 +54,18 @@ class CompanyForm(QWidget):
         company_name = QLabel("Company")
         company_edit = QLineEdit()
         company_edit.setMinimumWidth(270)
-        company_edit.setText(self.data[0][2])
-        company_edit.textChanged.connect(self.company_text)
+        company_edit.setText(self.dict["name"])
+        company_edit.setObjectName("name")
+        company_edit.textChanged.connect(self.edit_change)
         left_form.addRow(company_name, company_edit)
 
         # Date joined
         date_label = QLabel("Joined: ")
-        date = DateLabel()
-        date_joined = self.data[0][8] if self.data[0][8] is not None else "Click to set date"
-        date.setText(date_joined)
-        date.clicked.connect(self.change_date)
-        left_form.addRow(date_label, date)
+        self.date = DateLabel()
+        date_joined = self.dict["joined_date"].strftime('%-Y/%-m/%-d') if self.dict["joined_date"] is not None else "Click to set date"
+        self.date.setText(date_joined)
+        self.date.clicked.connect(self.change_date)
+        left_form.addRow(date_label, self.date)
 
         # Sells app-codes
         sells_btn = QHBoxLayout()
@@ -81,17 +85,19 @@ class CompanyForm(QWidget):
         left_form.addWidget(self.sales_stats)
 
         # Association radio checkBox
-        ass_check = QCheckBox("Association")
-        is_ass = True if self.data[0][11] == 1 else False
-        ass_check.setChecked(is_ass)
-        left_form.addWidget(ass_check)
+        self.ass_check = QCheckBox("Association")
+        is_ass = True if self.dict["asso"] == 1 else False
+        print("Asso", is_ass)
+        self.ass_check.setChecked(is_ass)
+        left_form.addWidget(self.ass_check)
 
         # Radio btn company joined
         joined_btn = QHBoxLayout()
-        joined_yes = QRadioButton("Yes")
+        self.joined_yes = QRadioButton("Yes")
         joined_no = QRadioButton("No")
-        joined_yes.setChecked(True)
-        joined_btn.addWidget(joined_yes)
+        self.joined_yes.setChecked(self.dict["joined"] == 1)
+        joined_no.setChecked(self.dict["joined"] == 0)
+        joined_btn.addWidget(self.joined_yes)
         joined_btn.addWidget(joined_no)
         left_form.addRow(QLabel("Joined"), joined_btn)
         left_side.addLayout(left_form)
@@ -102,10 +108,7 @@ class CompanyForm(QWidget):
         self.offer_list = QListWidget()
         self.offer_list.itemClicked.connect(self.list_clicked)
         self.offer_list.setMaximumHeight(70)
-        offers = self.db_controller.company_offers(self.company_id)
-        if offers is not None:
-            for offer in offers:
-                self.offer_list.addItem(offer[0])
+        self.add_to_QList()
         left_side.addWidget(self.offer_list)
 
         # Add offer btn and show app info btn
@@ -131,34 +134,45 @@ class CompanyForm(QWidget):
         '''
         # Contact name
         contact_edit = QLineEdit()
-        contact_edit.setText(self.data[0][4])
-        contact_edit.textChanged.connect(self.contact_text)
+        contact_edit.setText(self.dict["contact"])
+        contact_edit.setObjectName("contact")
+        contact_edit.textChanged.connect(self.edit_change)
         right_form.addRow(QLabel("Contact"), contact_edit)
 
         # Phone number
         phone_edit = QLineEdit()
-        phone_edit.setText(self.data[0][3])
+        phone_edit.setText(self.dict["phone"])
+        phone_edit.setObjectName("phone")
+        phone_edit.textChanged.connect(self.edit_change)
         right_form.addRow(QLabel("Phone number"), phone_edit)
 
         # Address
-        vbox = QVBoxLayout()
-        add_one = QLineEdit()
-        add_one.setMinimumWidth(240)
-        add_one.setText(self.data[0][5])
-        vbox.addWidget(add_one)
-        right_form.addRow(QLabel("Address"), vbox)
+        address = QLineEdit()
+        address.setMinimumWidth(240)
+        address.setText(self.dict["address"])
+        address.setObjectName("address")
+        address.textChanged.connect(self.edit_change)
+        right_form.addRow(QLabel("Address"), address)
+
+        # City
+        city = QLineEdit()
+        city.setText(self.city)
+        city.textChanged.connect(self.city_change)
+        right_form.addRow(QLabel("City"), city)
 
         # Mail
         mail_edit = QLineEdit()
         mail_edit.setMinimumWidth(240)
-        mail_edit.setText(self.data[0][6])
+        mail_edit.setText(self.dict["mail"])
+        mail_edit.setObjectName("mail")
+        mail_edit.textChanged.connect(self.edit_change)
         right_form.addRow(QLabel("E-mail"), mail_edit)
 
         # Notes
         notes_edit = QTextEdit()
-        notes_edit.setText(self.data[0][9])
+        notes_edit.setText(self.dict["notes"])
         right_form.addRow(QLabel("Notes"), notes_edit)
-        #right_side.addLayout(right_form)
+        
         
 
         end_button = QHBoxLayout()
@@ -167,6 +181,7 @@ class CompanyForm(QWidget):
         cancel.clicked.connect(self.quit)
         submit = QPushButton("Submit")
         submit.setMinimumWidth(130)
+        submit.clicked.connect(self.submit)
         end_button.addWidget(cancel)
         end_button.addWidget(submit)
         right_form.addRow(QLabel(""), end_button)
@@ -183,8 +198,16 @@ class CompanyForm(QWidget):
         self.setLayout(main_layout)
        
     
+    def add_to_QList(self):
+        offers = self.db_controller.company_offers(self.company_id)
+        self.id_list = []
+        if offers is not None:
+            for i in range(len(offers)):
+                self.id_list.append(offers[i][0])
+                self.offer_list.addItem(offers[i][1])
+
     def list_clicked(self, offer):  
-        self.w = OffersHandler(offer)
+        self.w = OffersHandler(offer, self.city, self.id_list[self.offer_list.currentRow()], self.db_controller)
         self.w.show() 
 
     def clicked_sales(self):
@@ -194,22 +217,27 @@ class CompanyForm(QWidget):
         offer, ok = QInputDialog.getText(self,"Add offer", "Enter offer")
         if ok:
             self.offer_list.addItem(offer)
+            self.db_controller.add_offer(self.company_id, offer, self.city)
     
     def clicked_app_info(self):
         self.w = AppInfo(self.db_controller, self.company_id)
         self.w.show()
-
+    
     def change_date(self):
-        print("clicked")
-
-    def company_text(self, text):
-        print(text)
-
-    def contact_text(self, text):
-        print(text)
+        date, ok = QInputDialog.getText(self,"Set date company joined", "Enter date (YYYY-MM-DD)")
+        if ok:
+            self.dict["joined_date"] = date
+            self.date.setText(date)
+    
+    def edit_change(self, text):
+        sender = self.sender().objectName()
+        self.dict[sender] = text
+    
+    def city_change(self, text):
+        self.city = text
     
     def set_sales_status(self):
-        if self.data[0][10] == 1:
+        if self.dict["sells"] == 1:
             self.sale_yes.setChecked(True)
         else:
             self.sale_no.setChecked(True) 
@@ -220,6 +248,32 @@ class CompanyForm(QWidget):
 
     def hide_sales_state_btn(self):
         self.sales_stats.hide()
+    
+    def setup_dict(self):
+        self.dict = {
+            "name": self.data[0][2],
+            "phone": self.data[0][3],
+            "contact": self.data[0][4],
+            "address": self.data[0][5],
+            "mail": self.data[0][6],
+            "joined_date": self.data[0][8],
+            "notes": self.data[0][9],
+            "sells": self.data[0][10],
+            "asso": self.data[0][11],
+            "joined": self.data[0][12]
+        }
+
+    def submit(self):
+        sells = 1 if self.sale_yes.isChecked() == True else 0
+        joined = 1 if self.joined_yes.isChecked() == True else 0
+        asso = 1 if self.ass_check.isChecked() == True else 0
+        joined_date = f"\'{self.dict['joined_date']}\'" if self.dict["joined_date"] is not None else "null"
+        print(joined_date)
+        self.db_controller.update_company_table(self.dict["name"], self.dict["phone"], self.dict["contact"],
+             self.dict["address"], self.dict["mail"], joined_date, self.dict["notes"], 
+             sells, asso, joined, self.company_id)
+        self.close()
+       
 
     def quit(self):
         self.close()
