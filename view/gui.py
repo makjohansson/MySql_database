@@ -134,8 +134,6 @@ class MainWindow(QMainWindow):
         table = QTableView()
         self.model = TableModel(data, header_labels)
         table.setModel(self.model)
-        # table.resizeColumnsToContents()
-        #table.setMaximumSize(720, 300)
         table.setShowGrid(False)
         table.clicked.connect(self.open_company_form)
         table.setStyleSheet(

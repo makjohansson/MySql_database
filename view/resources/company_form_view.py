@@ -87,7 +87,6 @@ class CompanyForm(QWidget):
         # Association radio checkBox
         self.ass_check = QCheckBox("Association")
         is_ass = True if self.dict["asso"] == 1 else False
-        print("Asso", is_ass)
         self.ass_check.setChecked(is_ass)
         left_form.addWidget(self.ass_check)
 
@@ -268,7 +267,6 @@ class CompanyForm(QWidget):
         joined = 1 if self.joined_yes.isChecked() == True else 0
         asso = 1 if self.ass_check.isChecked() == True else 0
         joined_date = f"\'{self.dict['joined_date']}\'" if self.dict["joined_date"] is not None else "null"
-        print(joined_date)
         self.db_controller.update_company_table(self.dict["name"], self.dict["phone"], self.dict["contact"],
              self.dict["address"], self.dict["mail"], joined_date, self.dict["notes"], 
              sells, asso, joined, self.company_id)

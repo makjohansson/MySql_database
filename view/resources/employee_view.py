@@ -1,10 +1,12 @@
 
+from view.resources.top_five_view import TopFive
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QDialog, QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 
-class EmployeeGrid():
+class EmployeeGrid(QWidget):
     def __init__(self, db_controller):
+        super().__init__()
         self.db_controller = db_controller
 
     def employee_grid(self):
@@ -39,12 +41,18 @@ class EmployeeGrid():
         label.setMaximumSize(pixmap_girl.width(), pixmap_girl.height())
         row_two.addWidget(label)
         row_two.addWidget(QLabels[3])
+
+        top_five_btn = QPushButton("Top 5 sales")
+        top_five_btn.pressed.connect(self.top_five)
+        top_five_btn.setMaximumWidth(100)
+
         
         grid.addLayout(row_one)
         grid.addLayout(row_two)
-        widget = QWidget()
-        widget.setLayout(grid)
-        return widget
+        grid.addWidget(top_five_btn)
+        
+        self.setLayout(grid)
+        return self
     
     def __fill_grid(self):
         QLabels = []
@@ -63,3 +71,7 @@ class EmployeeGrid():
             """)
             QLabels.append(label)
         return QLabels
+    
+    def top_five(self):
+        self.w = TopFive(self.db_controller)
+        self.w.show()

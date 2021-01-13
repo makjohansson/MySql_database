@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
 
 class AllAppInfo(QWidget):
@@ -70,12 +70,16 @@ class AllAppInfo(QWidget):
         self.description.textChanged.connect(self.description_change)
         right_side.addRow(QLabel("description"), self.description)
 
+        # Buttom buttons
+        delete_btn = QPushButton("Delete")
+        delete_btn.pressed.connect(self.delete)
         cancel_btn = QPushButton("Cancel")
         cancel_btn.pressed.connect(self.cancel)
         submit_btn = QPushButton("Submit")
         submit_btn.pressed.connect(self.submit)
 
         end = QHBoxLayout()
+        end.addWidget(delete_btn)
         end.addWidget(QLabel(" "))
         end.addWidget(cancel_btn)
         end.addWidget(submit_btn)
@@ -114,6 +118,12 @@ class AllAppInfo(QWidget):
     def description_change(self):
         text = self.description.toPlainText()
         self.dict["Desc"] = text
+    
+    def delete(self):
+        check = QMessageBox.question(self, "Remove", f"Remove info?")
+        if check == QMessageBox.Yes:
+            self.db_controller.delete_app_info(self.id)
+            self.close()
     
     def cancel(self):
         self.close()

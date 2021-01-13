@@ -39,7 +39,7 @@ class MysqlDB():
         db_return = stmt.fetchall()
         return db_return
     
-    def execute_update_query(self, query):
+    def execute_query(self, query):
         stmt = self.__conn.cursor()
         stmt.execute(query)
         self.__conn.commit()
