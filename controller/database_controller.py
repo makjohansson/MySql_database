@@ -1,5 +1,9 @@
 from model import MysqlDB
 
+'''
+Script containing all queries the application using to select or commit to the mysql database
+The class DatabaseController is dependent on the class MysqlDB
+'''
 
 class DatabaseController():
     def __init__(self):

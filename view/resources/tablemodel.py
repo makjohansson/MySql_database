@@ -1,8 +1,12 @@
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 
+'''
+Handels the TableViws data, take the data selected from the fill_company_table() in the database_controller and
+present it in a TableView
+'''
+
 class TableModel(QtCore.QAbstractTableModel):
-    counter = 0
     def __init__(self, data, header_labels, main_tabel=True):
         super(TableModel, self).__init__()
         self.data = data

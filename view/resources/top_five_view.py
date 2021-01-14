@@ -2,6 +2,8 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QWidget
 
 class TopFive(QWidget):
+    """QWidget use to present a user with the top five sales records
+    """
     def __init__(self, db_controller):
         super().__init__()
         self.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -11,12 +13,16 @@ class TopFive(QWidget):
         self.gui_setup()
     
     def gui_setup(self):
+        """QWidget layout setup
+        """
         self.main_layout = QVBoxLayout()
         self.label_list()
         self.setLayout(self.main_layout)
         
         
     def label_list(self):
+        """Present the list and design of labels used for that
+        """
         for i in range(len(self.data)):
             record = QLabel(f"{i+1}. {self.data[i][0]}  {self.data[i][1]} app-code's, year {self.data[i][2]}")
             record.setStyleSheet("color: #f5f5f5; font-family: Arial, Helvetica, sans-serif; "

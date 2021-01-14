@@ -6,6 +6,8 @@ from PyQt5.QtWidgets import QTableView, QVBoxLayout, QWidget, QLabel
 
 
 class AppInfo(QWidget):
+    """QWidget contaning a QTableView presenting a user with the offer_info related with the copany
+    """
     def __init__(self, db_controller, company_id):
         super().__init__()
         self.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -37,6 +39,8 @@ class AppInfo(QWidget):
         self.setLayout(main_layout)
 
     def app_info(self, i):
+        """Open the row in the TableView, showing the information that offer_info contaning
+        """
         row = i.row()
         self.w = AllAppInfo(self.db_controller, self.company_id, row)
         self.w.show()

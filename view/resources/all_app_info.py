@@ -1,9 +1,11 @@
 from PyQt5 import QtCore
-from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFormLayout, QHBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QTextEdit, QVBoxLayout, QWidget
 
 
 class AllAppInfo(QWidget):
+    """QWidget presenting a user with the offer_info content, the user can delete, change and add to the database
+    """
+
     def __init__(self, db_controller, company_id, row):
         super().__init__()
         self.setWindowModality(QtCore.Qt.ApplicationModal)
@@ -17,6 +19,8 @@ class AllAppInfo(QWidget):
         self.gui_setup()
 
     def gui_setup(self):
+        """Setup the QWidget layout
+        """
         main_layout = QVBoxLayout()
         form_layout = QHBoxLayout()
         left_side = QFormLayout()
@@ -93,6 +97,8 @@ class AllAppInfo(QWidget):
         self.setLayout(main_layout)
 
     def setup_dict(self):
+        """Get data from the database into the dictionary
+        """
         self.dict = {
             "Phone": self.data[0],
             "Address": self.data[1],
@@ -104,9 +110,12 @@ class AllAppInfo(QWidget):
         }
 
     def edit_change(self, text):
+        """If a QLineEdit() Widget inputfield is changed the input will be set in the dictionary
+        """
         sender = self.sender().objectName()
         self.dict[sender] = text
 
+    # Insert QTextEdit changes to the dictionary (Next three methods)
     def terms_change(self):
         text = self.terms.toPlainText()
         self.dict["Terms"] = text
@@ -118,19 +127,23 @@ class AllAppInfo(QWidget):
     def description_change(self):
         text = self.description.toPlainText()
         self.dict["Desc"] = text
-    
+
     def delete(self):
+        """Display a QMessageBox asking the a user if they really want to delete app_info content
+        """
         check = QMessageBox.question(self, "Remove", f"Remove info?")
         if check == QMessageBox.Yes:
             self.db_controller.delete_app_info(self.id)
             self.close()
-    
+
     def cancel(self):
+        """Close this QWidget
+        """
         self.close()
-    
+
     def submit(self):
-        self.db_controller.update_app_info(self.dict["Phone"], self.dict["Address"], self.dict["Mail"], 
-        self.dict["Web"], self.dict["Terms"], self.dict["Open"], self.dict["Desc"], self.id)
+        """Submit all changes to the database
+        """
+        self.db_controller.update_app_info(self.dict["Phone"], self.dict["Address"], self.dict["Mail"],
+                                           self.dict["Web"], self.dict["Terms"], self.dict["Open"], self.dict["Desc"], self.id)
         self.close()
-    
-    

@@ -1,8 +1,10 @@
-from controller import DatabaseController
 from view import MainWindow
 from PyQt5.QtWidgets import QApplication
 import sys
 
+"""
+Script used to run the application
+"""
 
 app = QApplication(sys.argv)
 window = MainWindow()

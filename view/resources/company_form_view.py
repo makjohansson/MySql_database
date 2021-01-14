@@ -1,13 +1,13 @@
 from view.resources.offers_handler_view import OffersHandler
 from view.resources.app_info_view import AppInfo
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtWidgets import QCheckBox, QDialogButtonBox, QFormLayout, QGridLayout, QHBoxLayout, QInputDialog, QLabel, QLineEdit, QListView, QListWidget, QListWidgetItem, QMessageBox, QPushButton, QRadioButton, QTextEdit, QVBoxLayout, QWidget
-from view.gui import QMainWindow
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QCheckBox, QFormLayout, QHBoxLayout, QInputDialog, QLabel, QLineEdit, QListWidget, QPushButton, QRadioButton, QTextEdit, QVBoxLayout, QWidget
 
-'''
-Help class to make the QLabel date clickable
-'''
+
+
 class DateLabel(QLabel):
+    """Help class to make the QLabel date clickable, used to chang the date
+    """
     clicked = QtCore.pyqtSignal()
 
     def mouseReleaseEvent(self, QMouseEvent):
@@ -16,25 +16,28 @@ class DateLabel(QLabel):
 
 
 class CompanyForm(QWidget):
+    """QWidget contaning the information from a specific company, allowing the user to delete, update and insert
+    data to the database about the specific company.
+    """
     def __init__(self, company_id, db_controller):
         super().__init__()
         self.setWindowModality(QtCore.Qt.ApplicationModal)
         self.setGeometry(500, 300, 800, 300)
-        
+
         self.company_id = company_id
         self.db_controller = db_controller
         self.data = self.db_controller.company_tabel(company_id)
         self.city = self.db_controller.company_city(company_id)
-        self.city = self.city[0][0] if self.city is not None else None 
+        self.city = self.city[0][0] if self.city is not None else None
         self.setup_dict()
         self.db_controller = db_controller
-        
+
         window_title = self.data[0][2]
         self.setWindowTitle(window_title)
-        
 
-        # self.setStyleSheet("QLabel{background-color: yel;}")
+        self.gui_setup()
 
+    def gui_setup(self):
         main_main = QVBoxLayout()
         main_layout = QHBoxLayout()
         main_layout.setContentsMargins(20, 20, 20, 20)
@@ -62,7 +65,8 @@ class CompanyForm(QWidget):
         # Date joined
         date_label = QLabel("Joined: ")
         self.date = DateLabel()
-        date_joined = self.dict["joined_date"].strftime('%-Y/%-m/%-d') if self.dict["joined_date"] is not None else "Click to set date"
+        date_joined = self.dict["joined_date"].strftime(
+            '%-Y/%-m/%-d') if self.dict["joined_date"] is not None else "Click to set date"
         self.date.setText(date_joined)
         self.date.clicked.connect(self.change_date)
         left_form.addRow(date_label, self.date)
@@ -121,7 +125,7 @@ class CompanyForm(QWidget):
         offers_appInfo_btns.addWidget(self.offers)
         offers_appInfo_btns.addWidget(self.app_info)
         left_side.addLayout(offers_appInfo_btns)
-        
+
         main_layout.addLayout(left_side)
 
         '''
@@ -171,9 +175,8 @@ class CompanyForm(QWidget):
         notes_edit = QTextEdit()
         notes_edit.setText(self.dict["notes"])
         right_form.addRow(QLabel("Notes"), notes_edit)
-        
-        
 
+        # Buttom buttons
         end_button = QHBoxLayout()
         cancel = QPushButton("Cancel")
         cancel.setMinimumWidth(130)
@@ -186,18 +189,15 @@ class CompanyForm(QWidget):
         right_form.addRow(QLabel(""), end_button)
         right_side.addLayout(right_form)
         main_layout.addLayout(right_side)
-        
-        
-        
-
         '''
         Right-side form end
         '''
 
         self.setLayout(main_layout)
-       
-    
+
     def add_to_QList(self):
+        """Add data to the Qlist from the offer table using the company_offers query
+        """
         offers = self.db_controller.company_offers(self.company_id)
         self.id_list = []
         if offers is not None:
@@ -205,50 +205,75 @@ class CompanyForm(QWidget):
                 self.id_list.append(offers[i][0])
                 self.offer_list.addItem(offers[i][1])
 
-    def list_clicked(self, offer):  
-        self.w = OffersHandler(offer, self.city, self.id_list[self.offer_list.currentRow()], self.db_controller)
-        self.w.show() 
+    def list_clicked(self, offer):
+        """Show information about the offer clicked by open the QWidget OfferHandler()
+        """
+        self.w = OffersHandler(
+            offer, self.city, self.id_list[self.offer_list.currentRow()], self.db_controller)
+        self.w.show()
 
     def clicked_sales(self):
+        """Will be a method to see sales records for the company if they sell app-codes
+        """
         print("Clicked on sales stats")
 
     def clicked_offers(self):
-        offer, ok = QInputDialog.getText(self,"Add offer", "Enter offer")
+        """Open a QInputDialog where a user can add a new offer
+        """
+        offer, ok = QInputDialog.getText(self, "Add offer", "Enter offer")
         if ok:
             self.offer_list.addItem(offer)
             self.db_controller.add_offer(self.company_id, offer, self.city)
-    
+
     def clicked_app_info(self):
+        """Show the QWidget AppInfo() presenting a user with the information related to the company in the 
+        offer_info table
+        """
         self.w = AppInfo(self.db_controller, self.company_id)
         self.w.show()
-    
+
     def change_date(self):
-        date, ok = QInputDialog.getText(self,"Set date company joined", "Enter date (YYYY-MM-DD)")
+        """Opens up a QInputDialog widget for the user to enter a date or change the date
+        """
+        date, ok = QInputDialog.getText(
+            self, "Set date company joined", "Enter date (YYYY-MM-DD)")
         if ok:
             self.dict["joined_date"] = date
             self.date.setText(date)
-    
+
     def edit_change(self, text):
+        """If a QLineEdit() Widget inputfield is changed the input will be set in the dictionary
+        """
         sender = self.sender().objectName()
         self.dict[sender] = text
-    
+
     def city_change(self, text):
+        """QLineEdit() Widget inputfield city set to the dictionary
+        """
         self.city = text
-    
+
     def set_sales_status(self):
+        """Set yes(True) if the company is selling app-codes else no(True)
+        """
         if self.dict["sells"] == 1:
             self.sale_yes.setChecked(True)
         else:
-            self.sale_no.setChecked(True) 
+            self.sale_no.setChecked(True)
             self.sales_stats.hide()
 
     def show_sales_state_btn(self):
+        """If the company sells app-codes the sale_stats btn is shown
+        """
         self.sales_stats.show()
 
     def hide_sales_state_btn(self):
+        """If the company don't sells app-codes the sale_stats btn is hidden
+        """
         self.sales_stats.hide()
-    
+
     def setup_dict(self):
+        """Get data from the database into the dictionary
+        """
         self.dict = {
             "name": self.data[0][2],
             "phone": self.data[0][3],
@@ -263,15 +288,18 @@ class CompanyForm(QWidget):
         }
 
     def submit(self):
+        """Submit all changes made into the database
+        """
         sells = 1 if self.sale_yes.isChecked() == True else 0
         joined = 1 if self.joined_yes.isChecked() == True else 0
         asso = 1 if self.ass_check.isChecked() == True else 0
         joined_date = f"\'{self.dict['joined_date']}\'" if self.dict["joined_date"] is not None else "null"
         self.db_controller.update_company_table(self.dict["name"], self.dict["phone"], self.dict["contact"],
-             self.dict["address"], self.dict["mail"], joined_date, self.dict["notes"], 
-             sells, asso, joined, self.company_id)
+                                                self.dict["address"], self.dict["mail"], joined_date, self.dict["notes"],
+                                                sells, asso, joined, self.company_id)
         self.close()
-       
 
     def quit(self):
+        """Close the CompanyForm(QWidget)
+        """
         self.close()

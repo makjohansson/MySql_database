@@ -1,6 +1,9 @@
 import mysql.connector as connector
 from mysql.connector import Error
 
+'''
+Script used to connect, make queries and disconnect to the mysql database
+'''
 
 class MysqlDB():
 
@@ -9,7 +12,7 @@ class MysqlDB():
         self.__database_name = 'Guld'
         self.__host = "localhost"
         self.__user = "root"
-        self.__password = "hondansr"
+        self.__password = "hondansr" # Enter password
         self.__connect()
 
     def __use_db(self):
@@ -34,18 +37,24 @@ class MysqlDB():
             print(e)
 
     def execute_select_query(self, query):
+        """Used when a select query is needed, returns the data from query
+        """
         stmt = self.__conn.cursor()
         stmt.execute(query)
         db_return = stmt.fetchall()
         return db_return
     
     def execute_query(self, query):
+        """Used to update or modify the database, query is commited
+        """
         stmt = self.__conn.cursor()
         stmt.execute(query)
         self.__conn.commit()
         print("Database updated")
         
     def disconnect(self):
+        """Disconnect from the mysql database
+        """
         if self.__conn is not None and self.__conn.is_connected:
             self.__conn.close()
             print(f"Connection to database {self.__database_name} is closed.")
