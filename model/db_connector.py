@@ -1,6 +1,6 @@
 import mysql.connector as connector
 from mysql.connector import Error
-from config import login
+from model.config import login
 
 '''
 Script used to connect, make queries and disconnect to the mysql database

@@ -4,5 +4,6 @@ guldDump.sql
 config.py
 *.pyc
 .vscode
-.DS_store
+.DS_Store
 .gitignore
+readme_img
