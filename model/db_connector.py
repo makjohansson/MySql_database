@@ -1,5 +1,6 @@
 import mysql.connector as connector
 from mysql.connector import Error
+from config import login
 
 '''
 Script used to connect, make queries and disconnect to the mysql database
@@ -9,10 +10,10 @@ class MysqlDB():
 
     def __init__(self):
         self.__conn = None
-        self.__database_name = 'Guld'
-        self.__host = "localhost"
-        self.__user = "root"
-        self.__password = "hondansr" # Enter password
+        self.__database_name = login['database']
+        self.__host = login['host']
+        self.__user = login['user']
+        self.__password = login['password'] 
         self.__connect()
 
     def __use_db(self):

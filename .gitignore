@@ -1,3 +1,6 @@
 /venv
 __pycache__
 guldDump.sql
+config.py
+*.pyc
+.vscode

@@ -13,7 +13,7 @@ class MainWindow(QMainWindow):
     """
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.setWindowTitle("Guldhäftet")
+        self.setWindowTitle("Guldhaftet")
         self.setGeometry(300, 200, 1030, 600)
         self.db_controller = DatabaseController()
 
